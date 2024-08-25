@@ -1,31 +1,48 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import './App.css';
 
 function App() {
-  const data = ['apple', 'orange', 'banana', 'pinaaaple'];
-  const [list, setList] = useState([]);
+  const[time,setTime]=useState(110)
+  const[isStarted,setIsStarted]=useState(false)
+  let timeRef:any=useRef(null)
 
-  const handleChange = (e: any) => {
-    let result: any = [];
-    data.forEach((item) => {
-      if (item.includes(e.target.value)) {
-        result.push(item);
-      }
-    });
-    if (e.target.value !== '') {
-      setList(result);
-    } else {
-      setList([]);
+  useEffect(()=>{
+    if(isStarted){
+      timeRef.current=setInterval(()=>{
+        setTime(prevTime=>prevTime+1)
+      },1000)
+    }else{
+      clearInterval(timeRef.current)
     }
-  };
+  },[isStarted])
+  const handleStart=()=>{
+    setIsStarted(true)
+  }
+  const handlePause=()=>{
+    setIsStarted(prev=>!prev)
+  }
+
+  const handleReset=()=>{
+    setTime(0);
+    setIsStarted(false)
+  }
+
+  const formatTime=(seconds:any)=>{
+
+    let hours=Math.floor(seconds/3600).toString().padStart(2,'0')
+    let minutes=Math.floor(seconds/60).toString().padStart(2,'0')
+    let sec=Math.floor(seconds%60).toString().padStart(2,'0')
+    return `${hours}-${minutes}-${sec}`
+
+  }
 
   return (
     <>
-      <input type="text" placeholder="Search" onChange={handleChange} />
-      <br />
-      <ul>
-        {list && list.map((item) => <li key={item}>{item}</li>)}
-      </ul>
+    <h1>Stop Watch</h1>
+    <span>{formatTime(time)}</span>
+    <button onClick={handleStart}>Start</button>
+    <button onClick={handlePause}>Pause/Resume</button>  
+    <button onClick={handleReset}>Reset</button>    
     </>
   );
 }
